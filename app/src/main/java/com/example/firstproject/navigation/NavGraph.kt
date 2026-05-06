@@ -101,6 +101,9 @@ fun NavGraph(
         composable(ROUTE_CONTACT_US) {
             ContactUsScreen(onBack = { navController.popBackStack() })
         }
+        composable(ROUTE_ABOUT_US) {
+            AboutUsScreen(onBack = { navController.popBackStack() })
+        }
         composable(ROUTE_ADMIN_DASHBOARD) {
             AdminDashboardContent(
                 onUnauthorized = { navController.navigate(ROUTE_LOGIN) },

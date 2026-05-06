@@ -1,6 +1,5 @@
 package com.example.firstproject.ui.theme
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,9 +11,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -26,9 +26,11 @@ fun AdminDashboardContent(
     onLogout: () -> Unit = {},
     viewModel: AuthViewModel = viewModel()
 ) {
-    val adminPrimary = Color(0xFF1A237E) // Deep Indigo for Admin
+    val luxuryGold = Color(0xFFD4AF37)
+    val deepCharcoal = Color(0xFF1A1A1A)
+    val cardBackground = Color(0xFF252525)
 
-    // STEP 4: BLOCK UNAUTHORIZED ACCESS
+    // BLOCK UNAUTHORIZED ACCESS
     LaunchedEffect(Unit) {
         viewModel.getCurrentUser { user ->
             if (user == null || user.role != "admin") {
@@ -43,7 +45,7 @@ fun AdminDashboardContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(80.dp)
-                    .background(adminPrimary)
+                    .background(deepCharcoal)
                     .padding(horizontal = 24.dp),
                 contentAlignment = Alignment.CenterStart
             ) {
@@ -53,9 +55,9 @@ fun AdminDashboardContent(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "ADMIN CONSOLE",
-                        color = Color.White,
-                        fontSize = 20.sp,
+                        text = "IVONNE ORCHARD ADMIN",
+                        color = luxuryGold,
+                        fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 2.sp
                     )
@@ -63,81 +65,104 @@ fun AdminDashboardContent(
                         viewModel.logout()
                         onLogout()
                     }) {
-                        Icon(Icons.Default.Logout, contentDescription = "Logout", tint = Color.White)
+                        Icon(Icons.Default.Logout, contentDescription = "Logout", tint = luxuryGold)
                     }
                 }
             }
-        }
+        },
+        containerColor = deepCharcoal
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(BoneWhite)
-                .padding(horizontal = 24.dp)
+                .padding(horizontal = 16.dp)
         ) {
+            // Analytics Title
             item {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "ANALYTICS OVERVIEW",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = luxuryGold,
+                    letterSpacing = 3.sp,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                Text(
+                    text = "Business Intelligence",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
                 Spacer(modifier = Modifier.height(24.dp))
-                Text(
-                    text = "Management Overview",
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Light,
-                    color = DeepSlate
-                )
-                Spacer(modifier = Modifier.height(32.dp))
             }
 
-            // High-Level Management Cards
+            // KPI Row (Key Performance Indicators)
             item {
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    AdminStatCard(
-                        label = "TOTAL USERS",
-                        value = "1,240",
-                        icon = Icons.Default.People,
-                        color = adminPrimary,
-                        modifier = Modifier.weight(1f)
-                    )
-                    AdminStatCard(
-                        label = "PENDING",
-                        value = "45",
-                        icon = Icons.Default.PendingActions,
-                        color = Color.Red,
-                        modifier = Modifier.weight(1f)
-                    )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    StatCard("Revenue", "Ksh 1.2M", luxuryGold, Modifier.weight(1f))
+                    StatCard("Bookings", "482", Color.White, Modifier.weight(1f))
                 }
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    StatCard("New Clients", "+12%", Color(0xFF4CAF50), Modifier.weight(1f))
+                    StatCard("Avg. Spend", "Ksh 4,500", Color.White, Modifier.weight(1f))
+                }
+                Spacer(modifier = Modifier.height(24.dp))
             }
 
+            // Sales Visualization Section
             item {
                 Text(
-                    text = "ADMINISTRATIVE TOOLS",
-                    fontSize = 11.sp,
-                    color = MutedEarth,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 2.sp
+                    text = "Monthly Revenue Trend",
+                    color = Color.LightGray,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(bottom = 12.dp)
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                // Visual Placeholder for Graph
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    colors = CardDefaults.cardColors(containerColor = cardBackground),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                        Text("Graph Visualization: [May 2026 Sales Data]", color = luxuryGold.copy(alpha = 0.5f))
+                    }
+                }
+                Spacer(modifier = Modifier.height(24.dp))
             }
 
-            // Quick Actions
+            // Recent Activity Section
             item {
-                AdminActionRow("Inventory Management", Icons.Default.Inventory, adminPrimary)
+                Text(
+                    text = "Recent Transactions",
+                    color = Color.White,
+                    style = MaterialTheme.typography.titleMedium
+                )
                 Spacer(modifier = Modifier.height(12.dp))
-                AdminActionRow("Staff Scheduling", Icons.Default.CalendarMonth, adminPrimary)
-                Spacer(modifier = Modifier.height(12.dp))
-                AdminActionRow("Financial Reports", Icons.Default.Payments, adminPrimary)
-                Spacer(modifier = Modifier.height(32.dp))
+            }
+
+            items(5) { // Replace with actual transaction list
+                TransactionItem(luxuryGold)
             }
             
             item {
-                Button(
-                    onClick = { /* Handle logs */ },
-                    modifier = Modifier.fillMaxWidth().height(56.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = adminPrimary),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text("VIEW SYSTEM LOGS", color = Color.White, fontWeight = FontWeight.Bold)
-                }
+                Spacer(modifier = Modifier.height(32.dp))
+                Text(
+                    text = "Tracking performance and growth since brand inception in 2009.",
+                    color = Color.Gray,
+                    fontSize = 11.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
                 Spacer(modifier = Modifier.height(40.dp))
             }
         }
@@ -145,38 +170,35 @@ fun AdminDashboardContent(
 }
 
 @Composable
-fun AdminStatCard(label: String, value: String, icon: androidx.compose.ui.graphics.vector.ImageVector, color: Color, modifier: Modifier) {
-    Surface(
-        modifier = modifier.height(120.dp),
-        shape = RoundedCornerShape(16.dp),
-        color = Color.White,
-        shadowElevation = 8.dp
+fun StatCard(title: String, value: String, valueColor: Color, modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF252525)),
+        shape = RoundedCornerShape(12.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.Center) {
-            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(28.dp))
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(value, color = DeepSlate, fontWeight = FontWeight.Bold, fontSize = 22.sp)
-            Text(label, color = MutedEarth, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(text = title, color = Color.Gray, fontSize = 12.sp)
+            Text(text = value, color = valueColor, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold)
         }
     }
 }
 
 @Composable
-fun AdminActionRow(label: String, icon: androidx.compose.ui.graphics.vector.ImageVector, color: Color) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        color = Color.White,
-        border = BorderStroke(1.dp, SoftStone)
+fun TransactionItem(luxuryGold: Color) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .background(Color(0xFF252525))
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(24.dp))
-            Spacer(modifier = Modifier.width(16.dp))
-            Text(label, color = DeepSlate, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
-            Icon(Icons.Default.ChevronRight, contentDescription = null, tint = SoftStone)
+        Column {
+            Text("Signature Bob Cut", color = Color.White, fontWeight = FontWeight.Bold)
+            Text("Customer: Elena", color = Color.Gray, fontSize = 12.sp)
         }
+        Text("Ksh 5,500", color = luxuryGold, fontWeight = FontWeight.Bold)
     }
 }
