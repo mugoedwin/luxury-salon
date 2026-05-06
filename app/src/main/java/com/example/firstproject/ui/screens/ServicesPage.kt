@@ -1,5 +1,6 @@
 package com.example.firstproject.ui.screens
 
+import androidx.compose.foundation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -11,6 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -23,6 +26,10 @@ data class ServiceCategory(val title: String, val subtitle: String, val imagePat
 
 @Composable
 fun ServicesPage(navController: NavController) {
+    val luxuryGold = Color(0xFFD4AF37)
+    val deepCharcoal = Color(0xFF121212)
+    val richMaroon = Color(0xFF2D0A0A)
+
     val categories = listOf(
         ServiceCategory("COUTURE HAIR DESIGN", "Styled by master artisans.", "file:///android_asset/images/Hair.jpg", "hair"),
         ServiceCategory("ROYAL GOLD FACIAL", "24k gold infused rejuvenation.", "file:///android_asset/images/Facial.png", "facial"),
@@ -31,18 +38,31 @@ fun ServicesPage(navController: NavController) {
         ServiceCategory("MODERN GLAM", "Exquisite styling for you.", "file:///android_asset/images/classic fade.jpg", "glam")
     )
 
-    Column(modifier = Modifier.fillMaxSize().background(Color.Black)) {
-        Text(
-            "SERVICES",
-            modifier = Modifier.padding(24.dp),
-            style = MaterialTheme.typography.headlineMedium.copy(color = Color.White, fontWeight = FontWeight.Bold)
-        )
-        
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                brush = Brush.radialGradient(
+                    colors = listOf(richMaroon, deepCharcoal),
+                    center = Offset(500f, 0f),
+                    radius = 2000f
+                )
+            )
+    ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            item {
+                Text(
+                    "EXCLUSIVE SERVICES",
+                    color = luxuryGold,
+                    style = MaterialTheme.typography.labelLarge,
+                    letterSpacing = 4.sp,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+            }
             items(categories) { category ->
                 ServiceCategoryItem(category) {
                     navController.navigate("service_detail/${category.routeId}")
@@ -54,38 +74,42 @@ fun ServicesPage(navController: NavController) {
 
 @Composable
 fun ServiceCategoryItem(category: ServiceCategory, onClick: () -> Unit) {
-    Box(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
             .height(180.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .clickable(onClick = onClick)
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.05f)),
+        border = BorderStroke(0.5.dp, Color(0xFFD4AF37).copy(alpha = 0.3f))
     ) {
-        AsyncImage(
-            model = category.imagePath,
-            contentDescription = category.title,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
-        )
-        // Dark overlay for readability
-        Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f)))
-        
-        Column(
-            modifier = Modifier.align(Alignment.CenterStart).padding(24.dp)
-        ) {
-            Text(
-                text = category.title,
-                color = Color.White,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 1.sp
+        Box(modifier = Modifier.fillMaxSize()) {
+            AsyncImage(
+                model = category.imagePath,
+                contentDescription = category.title,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
             )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = category.subtitle,
-                color = Color(0xFFD4AF37), // Luxury Gold
-                fontSize = 14.sp
-            )
+            // Dark overlay for readability
+            Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f)))
+            
+            Column(
+                modifier = Modifier.align(Alignment.CenterStart).padding(24.dp)
+            ) {
+                Text(
+                    text = category.title,
+                    color = Color.White,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.sp
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = category.subtitle,
+                    color = Color(0xFFD4AF37), // Luxury Gold
+                    fontSize = 14.sp
+                )
+            }
         }
     }
 }
