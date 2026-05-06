@@ -84,7 +84,14 @@ fun NavGraph(
             arguments = listOf(navArgument("serviceId") { type = NavType.StringType })
         ) { backStackEntry ->
             val serviceId = backStackEntry.arguments?.getString("serviceId") ?: "hair"
-            ServiceDetailPage(serviceId = serviceId, onBack = { navController.popBackStack() })
+            ServiceDetailPage(
+                serviceId = serviceId, 
+                onBookNow = { navController.navigate("bookings") }, // Navigate to Bookings
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable("bookings") {
+            BookingsPage(onBackClick = { navController.popBackStack() })
         }
         composable(ROUTE_CONTACT_US) {
             ContactUsScreen(onBack = { navController.popBackStack() })
