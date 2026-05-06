@@ -25,14 +25,20 @@ fun ServiceDetailPage(serviceId: String, onBack: () -> Unit) {
         "hair" -> "file:///android_asset/images/Hair.jpg" to listOf(
             ServiceItem("Champagne Blonde", "file:///android_asset/images/champagne blonde.jpg", "Luxurious blonde treatment"),
             ServiceItem("Signature Bob", "file:///android_asset/images/signature bob.jpg", "Modern sleek cut"),
-            ServiceItem("Velvet Curls", "file:///android_asset/images/velvet curls.jpg", "Soft bouncy curls")
+            ServiceItem("Velvet Curls", "file:///android_asset/images/velvet curls.jpg", "Soft bouncy curls"),
+            ServiceItem("Shava", "file:///android_asset/images/images.jpg", "Classic hair styling")
         )
         "facial" -> "file:///android_asset/images/Facial.png" to listOf(
             ServiceItem("Deep Cleansing", "file:///android_asset/images/Deep cleansing.jpg", "Purifying facial"),
-            ServiceItem("Anti-aging Ritual", "file:///android_asset/images/Anti aging ritual.jpg", "Youth rejuvenation")
+            ServiceItem("Anti-aging Ritual", "file:///android_asset/images/Anti aging ritual.jpg", "Youth rejuvenation"),
+            ServiceItem("Liks", "file:///android_asset/images/images.jpg", "Special facial treatment"),
+            ServiceItem("Ola", "file:///android_asset/images/images.jpg", "Signature glow ritual")
         )
         "spa" -> "file:///android_asset/images/Spa.jpg" to listOf(
-            ServiceItem("Spa Pedicure", "file:///android_asset/images/spa pedicure.jpg", "Relaxing foot therapy")
+            ServiceItem("Spa Pedicure", "file:///android_asset/images/spa pedicure.jpg", "Relaxing foot therapy"),
+            ServiceItem("Hot Stone Therapy", "file:///android_asset/images/Hot stone therapy.jpg", "Deep relaxation therapy"),
+            ServiceItem("Cat", "file:///android_asset/images/cat.jpg", "Luxurious relaxation treatment"),
+            ServiceItem("Deep Tissue Massage", "file:///android_asset/images/deep tissue massage.jpg", "Muscle relief")
         )
         "gloom" -> "file:///android_asset/images/image4.jpg" to listOf(
             ServiceItem("Gala Style", "file:///android_asset/images/gala style.jpg", "Red carpet ready styling"),
