@@ -1,0 +1,1 @@
+Place your raw images or assets in this folder.

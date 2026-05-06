@@ -1,0 +1,1 @@
+You can drop your downloaded images (like .jpg or .png) into this 'images' folder.
