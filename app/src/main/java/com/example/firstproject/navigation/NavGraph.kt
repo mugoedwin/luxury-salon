@@ -23,15 +23,20 @@ fun NavGraph(
     ) {
         composable(ROUTE_WELCOME) {
             WelcomeScreen(
-                onNavigateToLogin = { navController.navigate(ROUTE_LOGIN) },
+                onNavigateToLogin = { role -> navController.navigate("$ROUTE_LOGIN/$role") },
                 onNavigateToRegister = { navController.navigate(ROUTE_REGISTER) }
             )
         }
-        composable(ROUTE_LOGIN) {
+        composable(
+            route = "$ROUTE_LOGIN/{role}",
+            arguments = listOf(navArgument("role") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val role = backStackEntry.arguments?.getString("role") ?: "customer"
             LoginScreen(
+                role = role,
                 onNavigateToRegister = { navController.navigate(ROUTE_REGISTER) },
-                onLoginSuccess = { role ->
-                    if (role == "admin") {
+                onLoginSuccess = { userRole ->
+                    if (userRole == "admin") {
                         navController.navigate(ROUTE_ADMIN_DASHBOARD) {
                             popUpTo(ROUTE_LOGIN) { inclusive = true }
                         }
@@ -86,7 +91,7 @@ fun NavGraph(
             val serviceId = backStackEntry.arguments?.getString("serviceId") ?: "hair"
             ServiceDetailPage(
                 serviceId = serviceId, 
-                onBookNow = { navController.navigate("bookings") }, // Navigate to Bookings
+                onBookNow = { navController.navigate("bookings") },
                 onBack = { navController.popBackStack() }
             )
         }

@@ -30,6 +30,7 @@ import com.example.firstproject.viewmodel.AuthViewModel
 
 @Composable
 fun LoginScreen(
+    role: String = "customer",
     onNavigateToRegister: () -> Unit = {},
     onLoginSuccess: (String) -> Unit = {},
     viewModel: AuthViewModel = viewModel()
@@ -103,7 +104,7 @@ fun LoginScreen(
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Login", fontSize = 36.sp, fontWeight = FontWeight.Black, color = Color.White)
+                Text("Login as $role", fontSize = 36.sp, fontWeight = FontWeight.Black, color = Color.White)
                 
                 Text(
                     "Welcome back to Lux Salon",
