@@ -1,15 +1,17 @@
 package com.example.firstproject.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -17,111 +19,152 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 
-data class ServiceItem(val name: String, val image: String, val detail: String, val price: String, val duration: String)
+data class BespokeService(
+    val title: String,
+    val duration: String,
+    val description: String,
+    val price: String,
+    val benefit: String,
+    val imagePath: String
+)
 
 @Composable
 fun ServiceDetailPage(serviceId: String, onBookNow: () -> Unit, onBack: () -> Unit) {
-    val goldAccent = Color(0xFFD4AF37)
-    val deepMaroon = Color(0xFF4A0404)
-
-    val (headerImage, items) = when (serviceId) {
+    val champagneGold = Color(0xFFF1D38E)
+    
+    val (headerImage, services) = when (serviceId) {
         "hair" -> "file:///android_asset/images/Hair.jpg" to listOf(
-            ServiceItem("Champagne Blonde", "file:///android_asset/images/champagne blonde.jpg", "Luxurious blonde treatment", "Ksh 15,000", "3 hrs"),
-            ServiceItem("Signature Bob", "file:///android_asset/images/signature bob.jpg", "Modern sleek cut", "Ksh 5,500", "1.5 hrs"),
-            ServiceItem("Velvet Curls", "file:///android_asset/images/velvet curls.jpg", "Soft bouncy curls", "Ksh 4,000", "1 hr"),
-            ServiceItem("Shava", "file:///android_asset/images/images.jpg", "Classic hair styling", "Ksh 3,500", "45 mins")
+            BespokeService("Champagne Blonde", "3 hrs", "Luxurious blonde treatment", "15,000", "Deep Hydration", "file:///android_asset/images/champagne blonde.jpg"),
+            BespokeService("Signature Bob", "1.5 hrs", "Modern sleek cut", "5,500", "Precision Cut", "file:///android_asset/images/signature bob.jpg"),
+            BespokeService("Velvet Curls", "1 hr", "Soft bouncy curls", "4,000", "Volume Boost", "file:///android_asset/images/velvet curls.jpg"),
+            BespokeService("Shava", "45 mins", "Classic hair styling", "2,500", "Fresh Look", "file:///android_asset/images/images.jpg")
         )
         "facial" -> "file:///android_asset/images/Facial.png" to listOf(
-            ServiceItem("Deep Cleansing", "file:///android_asset/images/Deep cleansing.jpg", "Purifying facial", "Ksh 4,500", "60 min"),
-            ServiceItem("Anti-aging Ritual", "file:///android_asset/images/Anti aging ritual.jpg", "Youth rejuvenation", "Ksh 6,000", "90 min"),
-            ServiceItem("Liks", "file:///android_asset/images/images.jpg", "Special facial treatment", "Ksh 3,000", "45 min"),
-            ServiceItem("Ola", "file:///android_asset/images/images.jpg", "Signature glow ritual", "Ksh 3,500", "50 min")
+            BespokeService("Deep Cleansing", "60 min", "Purifying facial", "4,500", "Clear Skin", "file:///android_asset/images/Deep cleansing.jpg"),
+            BespokeService("Anti-aging Ritual", "90 min", "Youth rejuvenation", "6,000", "Collagen Boost", "file:///android_asset/images/Anti aging ritual.jpg"),
+            BespokeService("Liks", "45 min", "Special facial treatment", "3,000", "Skin Glow", "file:///android_asset/images/images.jpg"),
+            BespokeService("Ola", "50 min", "Signature glow ritual", "3,500", "Radiance", "file:///android_asset/images/images.jpg")
         )
         "spa" -> "file:///android_asset/images/Spa.jpg" to listOf(
-            ServiceItem("Spa Pedicure", "file:///android_asset/images/spa pedicure.jpg", "Relaxing foot therapy", "Ksh 2,000", "45 min"),
-            ServiceItem("Hot Stone Therapy", "file:///android_asset/images/Hot stone therapy.jpg", "Deep relaxation therapy", "Ksh 5,500", "90 min"),
-            ServiceItem("Cat", "file:///android_asset/images/cat.jpg", "Luxurious relaxation treatment", "Ksh 4,000", "60 min"),
-            ServiceItem("Deep Tissue Massage", "file:///android_asset/images/deep tissue massage.jpg", "Muscle relief", "Ksh 4,500", "75 min")
+            BespokeService("Spa Pedicure", "45 min", "Relaxing foot therapy", "2,000", "Smooth Skin", "file:///android_asset/images/spa pedicure.jpg"),
+            BespokeService("Hot Stone Therapy", "90 min", "Deep relaxation therapy", "5,500", "Tension Relief", "file:///android_asset/images/Hot stone therapy.jpg"),
+            BespokeService("Cat", "60 min", "Luxurious relaxation treatment", "4,000", "Deep Calm", "file:///android_asset/images/cat.jpg"),
+            BespokeService("Deep Tissue Massage", "75 min", "Muscle relief", "4,500", "Muscle Recovery", "file:///android_asset/images/deep tissue massage.jpg")
         )
         "gloom" -> "file:///android_asset/images/image4.jpg" to listOf(
-            ServiceItem("Gala Style", "file:///android_asset/images/gala style.jpg", "Red carpet ready styling", "Ksh 7,000", "120 min"),
-            ServiceItem("HD Make Up", "file:///android_asset/images/hd make up.jpg", "Flawless finish", "Ksh 5,000", "90 min"),
-            ServiceItem("Bridal Glow", "file:///android_asset/images/bridal glow.jpg", "Pinnacle of elegance", "Ksh 10,000", "150 min")
+            BespokeService("Gala Style", "120 min", "Red carpet ready styling", "7,000", "Glamour", "file:///android_asset/images/gala style.jpg"),
+            BespokeService("HD Make Up", "90 min", "Flawless finish", "5,000", "Perfect Glow", "file:///android_asset/images/hd make up.jpg"),
+            BespokeService("Bridal Glow", "150 min", "Pinnacle of elegance", "10,000", "Bridal Luxury", "file:///android_asset/images/bridal glow.jpg")
         )
         "glam" -> "file:///android_asset/images/classic fade.jpg" to listOf(
-            ServiceItem("Beard Sculpt", "file:///android_asset/images/Beard sculpt.jpg", "Precision grooming", "Ksh 1,500", "30 min"),
-            ServiceItem("Luku", "file:///android_asset/images/images.jpg", "Stylist signature look", "Ksh 2,000", "40 min"),
-            ServiceItem("Hot Towel Shave", "file:///android_asset/images/hot towel shave.jpg", "Refreshing traditional shave", "Ksh 1,200", "25 min"),
-            ServiceItem("Dans", "file:///android_asset/images/dans.jpg", "Exclusive style", "Ksh 2,500", "50 min")
+            BespokeService("Beard Sculpt", "30 min", "Precision grooming", "1,500", "Sharp Look", "file:///android_asset/images/Beard sculpt.jpg"),
+            BespokeService("Luku", "40 min", "Stylist signature look", "2,000", "Modern Trend", "file:///android_asset/images/images.jpg"),
+            BespokeService("Hot Towel Shave", "25 min", "Refreshing traditional shave", "1,200", "Smooth Skin", "file:///android_asset/images/hot towel shave.jpg"),
+            BespokeService("Dans", "50 min", "Exclusive style", "2,500", "Custom Look", "file:///android_asset/images/dans.jpg")
         )
         else -> "" to emptyList()
     }
 
-    LazyColumn(modifier = Modifier.fillMaxSize().background(Color(0xFFF8F5F2))) {
+    LazyColumn(modifier = Modifier.fillMaxSize().background(Color.White)) {
         item {
-            Box {
-                AsyncImage(
-                    model = headerImage,
-                    contentDescription = serviceId,
-                    modifier = Modifier.fillMaxWidth().height(300.dp),
-                    contentScale = ContentScale.Crop
-                )
-            }
+            AsyncImage(
+                model = headerImage,
+                contentDescription = serviceId,
+                modifier = Modifier.fillMaxWidth().height(250.dp),
+                contentScale = ContentScale.Crop
+            )
             Text(
                 text = serviceId.uppercase(),
-                modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
-                style = MaterialTheme.typography.headlineMedium.copy(
-                    fontWeight = FontWeight.ExtraBold,
-                    color = deepMaroon,
-                    letterSpacing = 2.sp
-                )
+                modifier = Modifier.padding(24.dp),
+                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.ExtraBold)
             )
         }
+        items(services) { service ->
+            DetailedServiceCard(service, onBookNow)
+        }
+    }
+}
 
-        items(items) { item ->
-            Card(
+@Composable
+fun DetailedServiceCard(service: BespokeService, onBookNow: () -> Unit) {
+    val champagneGold = Color(0xFFF1D38E)
+    
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        shape = RoundedCornerShape(24.dp),
+        border = BorderStroke(1.dp, champagneGold.copy(alpha = 0.3f))
+    ) {
+        Box {
+            AsyncImage(
+                model = service.imagePath,
+                contentDescription = service.title,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxWidth().height(220.dp)
+            )
+
+            Column(
                 modifier = Modifier
+                    .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(4.dp)
+                    .background(Color.Black.copy(alpha = 0.7f))
+                    .padding(16.dp)
             ) {
                 Row(
-                    modifier = Modifier.padding(12.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    AsyncImage(
-                        model = item.image,
-                        contentDescription = item.name,
-                        modifier = Modifier
-                            .size(100.dp)
-                            .clip(RoundedCornerShape(8.dp)),
-                        contentScale = ContentScale.Crop
+                    Text(
+                        text = service.title.uppercase(),
+                        color = champagneGold,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.ExtraBold,
+                        letterSpacing = 2.sp
                     )
-                    
-                    Spacer(modifier = Modifier.width(16.dp))
-                    
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(item.name, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color.Black)
-                        Text(item.detail, color = Color.Gray, fontSize = 13.sp)
-                        
-                        Spacer(modifier = Modifier.height(8.dp))
-                        
-                        Row {
-                            Text(text = item.price, color = goldAccent, fontWeight = FontWeight.Bold)
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text(text = item.duration, color = Color.LightGray, fontSize = 12.sp)
-                        }
+                    Text(
+                        text = "Ksh ${service.price}",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(4.dp))
+                
+                Text(
+                    text = service.description,
+                    color = Color.LightGray,
+                    fontSize = 12.sp,
+                    maxLines = 2
+                )
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            Icons.Default.Timer, 
+                            contentDescription = null, 
+                            tint = champagneGold, 
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Text(
+                            text = " ${service.duration} • ${service.benefit}",
+                            color = champagneGold,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Medium
+                        )
                     }
-
                     Button(
                         onClick = onBookNow,
-                        colors = ButtonDefaults.buttonColors(containerColor = deepMaroon),
-                        shape = RoundedCornerShape(8.dp),
-                        contentPadding = PaddingValues(horizontal = 12.dp)
+                        colors = ButtonDefaults.buttonColors(containerColor = champagneGold)
                     ) {
-                        Text("Book", fontSize = 12.sp, color = goldAccent)
+                        Text("BOOK", color = Color.Black, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }

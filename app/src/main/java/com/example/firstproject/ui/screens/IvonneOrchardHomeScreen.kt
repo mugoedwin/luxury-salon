@@ -18,7 +18,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -33,9 +32,19 @@ val DeepCharcoal = Color(0xFF121212)
 val RichMaroon = Color(0xFF2D0A0A)
 val SoftGray = Color(0xFFF5F5F5)
 
+data class ServiceItemCategory(val name: String, val imagePath: String, val route: String)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IvonneOrchardHomeScreen(navController: NavController = rememberNavController()) {
+    val serviceCategories = listOf(
+        ServiceItemCategory("Hair", "file:///android_asset/images/Hair.jpg", "service_detail/hair"),
+        ServiceItemCategory("Facial", "file:///android_asset/images/Facial.png", "service_detail/facial"),
+        ServiceItemCategory("Spa", "file:///android_asset/images/Spa.jpg", "service_detail/spa"),
+        ServiceItemCategory("Gloom", "file:///android_asset/images/image4.jpg", "service_detail/gloom"),
+        ServiceItemCategory("Glam", "file:///android_asset/images/classic fade.jpg", "service_detail/glam")
+    )
+
     Scaffold(
         bottomBar = { AppBottomNavigation(navController) }
     ) { paddingValues ->
@@ -57,7 +66,6 @@ fun IvonneOrchardHomeScreen(navController: NavController = rememberNavController
                     .verticalScroll(rememberScrollState())
                     .padding(bottom = 20.dp)
             ) {
-                // Animated Brand Identity
                 FloatingAnimation {
                     Text(
                         text = "Ivonne Orchard",
@@ -83,11 +91,9 @@ fun IvonneOrchardHomeScreen(navController: NavController = rememberNavController
 
                 SectionTitle("Bespoke Services")
                 Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                    ServiceIcon(Icons.Default.ContentCut, "Hair", onClick = { navController.navigate("service_detail/hair") })
-                    ServiceIcon(Icons.Default.Face, "Facial", onClick = { navController.navigate("service_detail/facial") })
-                    ServiceIcon(Icons.Default.AutoAwesome, "Spa", onClick = { navController.navigate("service_detail/spa") })
-                    ServiceIcon(Icons.Default.Celebration, "Gloom", onClick = { navController.navigate("service_detail/gloom") })
-                    ServiceIcon(Icons.Default.Star, "Glam", onClick = { navController.navigate("service_detail/glam") })
+                    serviceCategories.forEach { category ->
+                        ServiceImageButton(category) { navController.navigate(category.route) }
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -110,6 +116,21 @@ fun IvonneOrchardHomeScreen(navController: NavController = rememberNavController
 }
 
 @Composable
+fun SectionTitle(title: String) {
+    Text(title, modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = LuxuryGold))
+}
+
+@Composable
+fun ServiceImageButton(category: ServiceItemCategory, onClick: () -> Unit) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.clickable { onClick() }) {
+        Box(modifier = Modifier.size(60.dp).clip(CircleShape).background(SoftGray), contentAlignment = Alignment.Center) { 
+            AsyncImage(model = category.imagePath, contentDescription = category.name, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+        }
+        Text(category.name, modifier = Modifier.padding(top = 8.dp), fontSize = 12.sp, color = Color.Gray)
+    }
+}
+
+@Composable
 fun FloatingAnimation(content: @Composable () -> Unit) {
     val infiniteTransition = rememberInfiniteTransition(label = "floating")
     val dy by infiniteTransition.animateFloat(
@@ -120,21 +141,7 @@ fun FloatingAnimation(content: @Composable () -> Unit) {
             repeatMode = RepeatMode.Reverse
         ), label = "yOffset"
     )
-
     Box(modifier = Modifier.graphicsLayer { translationY = dy }) { content() }
-}
-
-@Composable
-fun SectionTitle(title: String) {
-    Text(title, modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = LuxuryGold))
-}
-
-@Composable
-fun ServiceIcon(icon: ImageVector, label: String, onClick: () -> Unit) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.clickable { onClick() }) {
-        Box(modifier = Modifier.size(60.dp).clip(CircleShape).background(SoftGray), contentAlignment = Alignment.Center) { Icon(icon, contentDescription = null, tint = DeepCharcoal) }
-        Text(label, modifier = Modifier.padding(top = 8.dp), fontSize = 12.sp, color = Color.Gray)
-    }
 }
 
 @Composable
