@@ -34,6 +34,17 @@ fun ServiceDetailPage(serviceId: String, onBack: () -> Unit) {
         "spa" -> "file:///android_asset/images/Spa.jpg" to listOf(
             ServiceItem("Spa Pedicure", "file:///android_asset/images/spa pedicure.jpg", "Relaxing foot therapy")
         )
+        "gloom" -> "file:///android_asset/images/image4.jpg" to listOf(
+            ServiceItem("Gala Style", "file:///android_asset/images/gala style.jpg", "Red carpet ready styling"),
+            ServiceItem("HD Make Up", "file:///android_asset/images/hd make up.jpg", "Flawless finish"),
+            ServiceItem("Bridal Glow", "file:///android_asset/images/bridal glow.jpg", "Pinnacle of elegance")
+        )
+        "glam" -> "file:///android_asset/images/classic fade.jpg" to listOf(
+            ServiceItem("Beard Sculpt", "file:///android_asset/images/Beard sculpt.jpg", "Precision grooming"),
+            ServiceItem("Luku", "file:///android_asset/images/images.jpg", "Stylist signature look"),
+            ServiceItem("Hot Towel Shave", "file:///android_asset/images/hot towel shave.jpg", "Refreshing traditional shave"),
+            ServiceItem("Dans", "file:///android_asset/images/dans.jpg", "Exclusive style")
+        )
         else -> "" to emptyList()
     }
 

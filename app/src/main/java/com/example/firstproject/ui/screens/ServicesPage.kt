@@ -1,6 +1,5 @@
 package com.example.firstproject.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -28,7 +27,8 @@ fun ServicesPage(navController: NavController) {
         ServiceCategory("COUTURE HAIR DESIGN", "Styled by master artisans.", "file:///android_asset/images/Hair.jpg", "hair"),
         ServiceCategory("ROYAL GOLD FACIAL", "24k gold infused rejuvenation.", "file:///android_asset/images/Facial.png", "facial"),
         ServiceCategory("PRIVATE SPA RITUALS", "Absolute confusion and serenity.", "file:///android_asset/images/Spa.jpg", "spa"),
-        ServiceCategory("BRIDAL ATELIER", "The pinnacle of wedding elegance.", "file:///android_asset/images/bridal glow.jpg", "bridal")
+        ServiceCategory("BRIDAL ATELIER", "The pinnacle of wedding elegance.", "file:///android_asset/images/bridal glow.jpg", "gloom"),
+        ServiceCategory("MODERN GLAM", "Exquisite styling for you.", "file:///android_asset/images/classic fade.jpg", "glam")
     )
 
     Column(modifier = Modifier.fillMaxSize().background(Color.Black)) {
@@ -45,7 +45,6 @@ fun ServicesPage(navController: NavController) {
         ) {
             items(categories) { category ->
                 ServiceCategoryItem(category) {
-                    Log.d("ServicesPage", "Clicked on: ${category.routeId}")
                     navController.navigate("service_detail/${category.routeId}")
                 }
             }
