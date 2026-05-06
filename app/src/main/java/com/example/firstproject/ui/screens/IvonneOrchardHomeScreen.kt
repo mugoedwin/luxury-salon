@@ -100,7 +100,8 @@ fun AppBottomNavigation(navController: NavController) {
         NavigationBarItem(selected = true, onClick = {}, icon = { Icon(Icons.Default.Home, null) }, label = { Text("Home") })
         NavigationBarItem(selected = false, onClick = { navController.navigate(ROUTE_SERVICES) }, icon = { Icon(Icons.Default.ContentCut, null) }, label = { Text("Services") })
         NavigationBarItem(selected = false, onClick = {}, icon = { Icon(Icons.Default.CalendarMonth, null) }, label = { Text("Bookings") })
-        NavigationBarItem(selected = false, onClick = { navController.navigate(ROUTE_CONTACT_US) }, icon = { Icon(Icons.Default.Info, null) }, label = { Text("About") })
+        NavigationBarItem(selected = false, onClick = { navController.navigate(ROUTE_ABOUT_US) }, icon = { Icon(Icons.Default.Info, null) }, label = { Text("About") })
+        NavigationBarItem(selected = false, onClick = { navController.navigate(ROUTE_CONTACT_US) }, icon = { Icon(Icons.Default.Call, null) }, label = { Text("Contact") })
     }
 }
 
