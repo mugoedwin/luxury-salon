@@ -18,6 +18,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -158,7 +159,7 @@ fun AppBottomNavigation(navController: NavController) {
     NavigationBar(containerColor = DeepCharcoal) {
         NavigationBarItem(selected = true, onClick = {}, icon = { Icon(Icons.Default.Home, null, tint = LuxuryGold) }, label = { Text("Home", color = LuxuryGold) })
         NavigationBarItem(selected = false, onClick = { navController.navigate(ROUTE_SERVICES) }, icon = { Icon(Icons.Default.ContentCut, null, tint = Color.Gray) }, label = { Text("Services", color = Color.Gray) })
-        NavigationBarItem(selected = false, onClick = {}, icon = { Icon(Icons.Default.CalendarMonth, null, tint = Color.Gray) }, label = { Text("Bookings", color = Color.Gray) })
+        NavigationBarItem(selected = false, onClick = { navController.navigate("bookings") }, icon = { Icon(Icons.Default.CalendarMonth, null, tint = Color.Gray) }, label = { Text("Bookings", color = Color.Gray) })
         NavigationBarItem(selected = false, onClick = { navController.navigate(ROUTE_ABOUT_US) }, icon = { Icon(Icons.Default.Info, null, tint = Color.Gray) }, label = { Text("About", color = Color.Gray) })
         NavigationBarItem(selected = false, onClick = { navController.navigate(ROUTE_CONTACT_US) }, icon = { Icon(Icons.Default.Call, null, tint = Color.Gray) }, label = { Text("Contact", color = Color.Gray) })
     }
