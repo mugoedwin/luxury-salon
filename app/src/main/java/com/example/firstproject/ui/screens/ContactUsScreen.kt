@@ -1,5 +1,6 @@
 package com.example.firstproject.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,15 +13,21 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun ContactUsScreen(onBack: () -> Unit = {}) {
     val luxuryGold = Color(0xFFD4AF37)
     val deepCharcoal = Color(0xFF121212)
+    
+    val context = LocalContext.current
+    val db = FirebaseFirestore.getInstance()
     
     // Form States
     var name by remember { mutableStateOf("") }
@@ -35,7 +42,7 @@ fun ContactUsScreen(onBack: () -> Unit = {}) {
     ) {
         // 1. Hero Header
         item {
-            Box(modifier = Modifier.fillMaxWidth().height(300.dp)) {
+            Box(modifier = Modifier.fillMaxWidth().height(280.dp)) {
                 AsyncImage(
                     model = "file:///android_asset/images/laety.jpg",
                     contentDescription = "Ivonne Orchard Residency",
@@ -46,7 +53,7 @@ fun ContactUsScreen(onBack: () -> Unit = {}) {
                     Brush.verticalGradient(listOf(Color.Transparent, deepCharcoal))
                 ))
                 Column(
-                    modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 24.dp),
+                    modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text("PRIVATE CONCIERGE", color = luxuryGold, style = MaterialTheme.typography.labelLarge, letterSpacing = 5.sp)
@@ -106,7 +113,32 @@ fun ContactUsScreen(onBack: () -> Unit = {}) {
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Button(
-                    onClick = { /* Save to Firebase logic */ },
+                    onClick = { 
+                        if (name.isNotEmpty() && email.isNotEmpty() && phone.isNotEmpty()) {
+                            val enquiryData = hashMapOf(
+                                "clientName" to name,
+                                "clientEmail" to email,
+                                "clientPhone" to phone,
+                                "inquiryDetails" to message,
+                                "status" to "Pending",
+                                "timestamp" to Timestamp.now(),
+                                "location" to "Nairobi residency"
+                            )
+
+                            db.collection("enquiries")
+                                .add(enquiryData)
+                                .addOnSuccessListener {
+                                    Toast.makeText(context, "Your enquiry has been received. Our concierge will contact you shortly.", Toast.LENGTH_LONG).show()
+                                    // Clear fields after success
+                                    name = ""; email = ""; phone = ""; message = ""
+                                }
+                                .addOnFailureListener { e ->
+                                    Toast.makeText(context, "Submission Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                                }
+                        } else {
+                            Toast.makeText(context, "Please complete your credentials to proceed.", Toast.LENGTH_SHORT).show()
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth().height(60.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = luxuryGold),
                     shape = RoundedCornerShape(4.dp) 
