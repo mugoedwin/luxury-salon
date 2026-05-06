@@ -1,6 +1,6 @@
 package com.example.firstproject.ui.screens
 
-import android.app.DatePickerDialog
+import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,15 +21,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FirebaseFirestore
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BookingsPage(onBackClick: () -> Unit) {
+fun BookingsPage(onBackClick: () -> Unit, onProceedToPayment: () -> Unit) {
     val luxuryGold = Color(0xFFD4AF37)
     val deepMaroon = Color(0xFF1A0A0A)
     val cardBackground = Color(0xFF2A1A1A)
     val context = LocalContext.current
+    val db = FirebaseFirestore.getInstance()
 
     var step by remember { mutableIntStateOf(0) }
     var selectedDate by remember { mutableStateOf("Select Date") }
@@ -40,7 +43,7 @@ fun BookingsPage(onBackClick: () -> Unit) {
 
     // DatePicker Dialog setup
     val calendar = Calendar.getInstance()
-    val datePickerDialog = DatePickerDialog(
+    val datePickerDialog = android.app.DatePickerDialog(
         context,
         { _, year, month, dayOfMonth ->
             selectedDate = "$dayOfMonth/${month + 1}/$year"
@@ -49,6 +52,28 @@ fun BookingsPage(onBackClick: () -> Unit) {
         calendar.get(Calendar.MONTH),
         calendar.get(Calendar.DAY_OF_MONTH)
     )
+
+    fun submitBooking() {
+        val bookingData = hashMapOf(
+            "services" to cartItems.map { it.title },
+            "total" to BookingManager.calculateTotal(),
+            "date" to selectedDate,
+            "time" to selectedTime,
+            "timestamp" to Timestamp.now(),
+            "status" to "Pending"
+        )
+
+        db.collection("bookings")
+            .add(bookingData)
+            .addOnSuccessListener {
+                Toast.makeText(context, "Booking successfully saved!", Toast.LENGTH_LONG).show()
+                BookingManager.clearCart()
+                onProceedToPayment()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
 
     Scaffold(
         topBar = {
@@ -87,7 +112,6 @@ fun BookingsPage(onBackClick: () -> Unit) {
                     Text("PROCEED TO SELECT DATE/TIME", color = Color.Black, fontWeight = FontWeight.Bold)
                 }
             } else {
-                // Header image for selection
                 AsyncImage(model = "file:///android_asset/images/time.jpg", contentDescription = "Time Selection", modifier = Modifier.fillMaxWidth().height(150.dp), contentScale = ContentScale.Crop)
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -118,7 +142,7 @@ fun BookingsPage(onBackClick: () -> Unit) {
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 Button(
-                    onClick = { /* Handle Payment */ },
+                    onClick = { submitBooking() },
                     modifier = Modifier.fillMaxWidth().height(56.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = luxuryGold),
                     enabled = selectedTime.isNotEmpty() && selectedDate != "Select Date"

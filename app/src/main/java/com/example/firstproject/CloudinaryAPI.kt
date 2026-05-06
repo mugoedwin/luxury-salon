@@ -13,9 +13,9 @@ object CloudinaryAPI {
         onError: (String) -> Unit,
         onProgress: (Long, Long) -> Unit = { _, _ -> }
     ) {
-        // Switching back to explicitly UNSIGNED upload as seen in your dashboard
+        // Updated to use the correct upload preset name "zambezi"
         MediaManager.get().upload(imageUri)
-            .unsigned("kingvon")
+            .unsigned("zambezi")
             .callback(object : UploadCallback {
                 override fun onStart(requestId: String) {
                     Log.d("CloudinaryAPI", "Upload started: $requestId")

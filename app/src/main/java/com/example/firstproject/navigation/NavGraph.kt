@@ -96,7 +96,17 @@ fun NavGraph(
             )
         }
         composable("bookings") {
-            BookingsPage(onBackClick = { navController.popBackStack() })
+            BookingsPage(
+                onBackClick = { navController.popBackStack() },
+                onProceedToPayment = { navController.navigate("payment_screen") }
+            )
+        }
+        composable("payment_screen") {
+            PaymentScreen(onPaymentSuccess = { 
+                navController.navigate(ROUTE_DASHBOARD) { 
+                    popUpTo(0) { inclusive = true } 
+                } 
+            })
         }
         composable(ROUTE_CONTACT_US) {
             ContactUsScreen(onBack = { navController.popBackStack() })
