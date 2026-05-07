@@ -10,7 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,57 +21,52 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.toObjects
 
 data class BespokeService(
-    val id: String,
-    val title: String,
-    val duration: String,
-    val description: String,
-    val price: String,
-    val benefit: String,
-    val imagePath: String
+    val category: String = "",
+    val title: String = "",
+    val duration: String = "",
+    val description: String = "",
+    val price: String = "",
+    val benefit: String = "",
+    val imagePath: String = ""
 )
 
 @Composable
 fun ServiceDetailPage(serviceId: String, onBookNow: () -> Unit, onBack: () -> Unit) {
     val champagneGold = Color(0xFFF1D38E)
     val context = LocalContext.current
-    
-    val (headerImage, services) = when (serviceId) {
-        "hair" -> "file:///android_asset/images/Hair.jpg" to listOf(
-            BespokeService("1", "Champagne Blonde", "3 hrs", "Luxurious blonde treatment", "15,000", "Deep Hydration", "file:///android_asset/images/champagne blonde.jpg"),
-            BespokeService("2", "Signature Bob", "1.5 hrs", "Modern sleek cut", "5,500", "Precision Cut", "file:///android_asset/images/signature bob.jpg"),
-            BespokeService("3", "Velvet Curls", "1 hr", "Soft bouncy curls", "4,000", "Volume Boost", "file:///android_asset/images/velvet curls.jpg"),
-            BespokeService("4", "Shava", "45 mins", "Classic hair styling", "2,500", "Fresh Look", "file:///android_asset/images/images.jpg")
-        )
-        "facial" -> "file:///android_asset/images/Facial.png" to listOf(
-            BespokeService("5", "Deep Cleansing", "60 min", "Purifying facial", "4,500", "Clear Skin", "file:///android_asset/images/Deep cleansing.jpg"),
-            BespokeService("6", "Anti-aging Ritual", "90 min", "Youth rejuvenation", "6,000", "Collagen Boost", "file:///android_asset/images/Anti aging ritual.jpg"),
-            BespokeService("7", "Liks", "45 min", "Special facial treatment", "3,000", "Skin Glow", "file:///android_asset/images/images.jpg"),
-            BespokeService("8", "Ola", "50 min", "Signature glow ritual", "3,500", "Radiance", "file:///android_asset/images/images.jpg")
-        )
-        "spa" -> "file:///android_asset/images/Spa.jpg" to listOf(
-            BespokeService("9", "Spa Pedicure", "45 min", "Relaxing foot therapy", "2,000", "Smooth Skin", "file:///android_asset/images/spa pedicure.jpg"),
-            BespokeService("10", "Hot Stone Therapy", "90 min", "Deep relaxation therapy", "5,500", "Tension Relief", "file:///android_asset/images/Hot stone therapy.jpg"),
-            BespokeService("11", "Cat", "60 min", "Luxurious relaxation treatment", "4,000", "Deep Calm", "file:///android_asset/images/cat.jpg"),
-            BespokeService("12", "Deep Tissue Massage", "75 min", "Muscle relief", "4,500", "Muscle Recovery", "file:///android_asset/images/deep tissue massage.jpg")
-        )
-        "gloom" -> "file:///android_asset/images/image4.jpg" to listOf(
-            BespokeService("13", "Gala Style", "120 min", "Red carpet ready styling", "7,000", "Glamour", "file:///android_asset/images/gala style.jpg"),
-            BespokeService("14", "HD Make Up", "90 min", "Flawless finish", "5,000", "Perfect Glow", "file:///android_asset/images/hd make up.jpg"),
-            BespokeService("15", "Bridal Glow", "150 min", "Pinnacle of elegance", "10,000", "Bridal Luxury", "file:///android_asset/images/bridal glow.jpg")
-        )
-        "glam" -> "file:///android_asset/images/classic fade.jpg" to listOf(
-            BespokeService("16", "Beard Sculpt", "30 min", "Precision grooming", "1,500", "Sharp Look", "file:///android_asset/images/Beard sculpt.jpg"),
-            BespokeService("17", "Luku", "40 min", "Stylist signature look", "2,000", "Modern Trend", "file:///android_asset/images/images.jpg"),
-            BespokeService("18", "Hot Towel Shave", "25 min", "Refreshing traditional shave", "1,200", "Smooth Skin", "file:///android_asset/images/hot towel shave.jpg"),
-            BespokeService("19", "Dans", "50 min", "Exclusive style", "2,500", "Custom Look", "file:///android_asset/images/dans.jpg")
-        )
-        else -> "" to emptyList()
+    var services by remember { mutableStateOf<List<BespokeService>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+
+    LaunchedEffect(serviceId) {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("bespoke_services")
+            .whereEqualTo("category", serviceId)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                services = snapshot.toObjects(BespokeService::class.java)
+                isLoading = false
+            }
+            .addOnFailureListener {
+                isLoading = false
+            }
     }
 
     LazyColumn(modifier = Modifier.fillMaxSize().background(Color.White)) {
         item {
+            // Using a static header image based on the category for visual consistency
+            val headerImage = when (serviceId) {
+                "hair" -> "file:///android_asset/images/Hair.jpg"
+                "facial" -> "file:///android_asset/images/Facial.png"
+                "spa" -> "file:///android_asset/images/Spa.jpg"
+                "gloom" -> "file:///android_asset/images/image4.jpg"
+                "glam" -> "file:///android_asset/images/classic fade.jpg"
+                else -> ""
+            }
+            
             AsyncImage(
                 model = headerImage,
                 contentDescription = serviceId,
@@ -89,6 +84,12 @@ fun ServiceDetailPage(serviceId: String, onBookNow: () -> Unit, onBack: () -> Un
                 colors = ButtonDefaults.buttonColors(containerColor = champagneGold)
             ) {
                 Text("PROCEED TO BOOKINGS", color = Color.Black, fontWeight = FontWeight.Bold)
+            }
+            
+            if (isLoading) {
+                Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = champagneGold)
+                }
             }
         }
         items(services) { service ->

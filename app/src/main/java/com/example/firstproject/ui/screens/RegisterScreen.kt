@@ -32,7 +32,7 @@ import com.example.firstproject.viewmodel.AuthViewModel
 @Composable
 fun RegisterScreen(
     onBackToLogin: () -> Unit = {},
-    onRegisterSuccess: (String) -> Unit = {},
+    onRegisterSuccess: (String, String) -> Unit = { _, _ -> },
     viewModel: AuthViewModel = viewModel()
 ) {
     var fullName by remember { mutableStateOf("") }
@@ -48,8 +48,7 @@ fun RegisterScreen(
     LaunchedEffect(authState) {
         val currentStatus = authState
         if (currentStatus is AuthState.Success) {
-            val userRole = currentStatus.role
-            onRegisterSuccess(userRole)
+            onRegisterSuccess(currentStatus.role, currentStatus.userName)
             viewModel.resetState()
         }
     }

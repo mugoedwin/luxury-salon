@@ -35,7 +35,7 @@ fun NavGraph(
             LoginScreen(
                 role = role,
                 onNavigateToRegister = { navController.navigate(ROUTE_REGISTER) },
-                onLoginSuccess = { userRole ->
+                onLoginSuccess = { userRole, userName ->
                     if (userRole == "admin") {
                         navController.navigate(ROUTE_ADMIN_DASHBOARD) {
                             popUpTo(ROUTE_LOGIN) { inclusive = true }
@@ -51,7 +51,7 @@ fun NavGraph(
         composable(ROUTE_REGISTER) {
             RegisterScreen(
                 onBackToLogin = { navController.navigate(ROUTE_LOGIN) },
-                onRegisterSuccess = { role ->
+                onRegisterSuccess = { role, userName ->
                     if (role == "admin") {
                         navController.navigate(ROUTE_ADMIN_DASHBOARD) {
                             popUpTo(ROUTE_REGISTER) { inclusive = true }

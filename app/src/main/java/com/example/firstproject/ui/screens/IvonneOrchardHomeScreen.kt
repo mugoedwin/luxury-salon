@@ -1,10 +1,14 @@
 package com.example.firstproject.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.*
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -23,10 +27,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.firstproject.navigation.*
+import com.example.firstproject.viewmodel.AuthViewModel
+import kotlinx.coroutines.delay
 
 val LuxuryGold = Color(0xFFD4AF37)
 val DeepCharcoal = Color(0xFF121212)
@@ -34,10 +41,28 @@ val RichMaroon = Color(0xFF2D0A0A)
 val SoftGray = Color(0xFFF5F5F5)
 
 data class ServiceItemCategory(val name: String, val imagePath: String, val route: String)
+data class Testimonial(val name: String, val text: String)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun IvonneOrchardHomeScreen(navController: NavController = rememberNavController()) {
+fun IvonneOrchardHomeScreen(
+    navController: NavController = rememberNavController(),
+    initialUserName: String? = null,
+    authViewModel: AuthViewModel = viewModel()
+) {
+    var userName by remember { mutableStateOf(initialUserName ?: "Guest") }
+    var isVisible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        if (initialUserName == null) {
+            authViewModel.getCurrentUser { user ->
+                user?.let { userName = it.name }
+            }
+        }
+        delay(300)
+        isVisible = true
+    }
+
     val serviceCategories = listOf(
         ServiceItemCategory("Hair", "file:///android_asset/images/Hair.jpg", "service_detail/hair"),
         ServiceItemCategory("Facial", "file:///android_asset/images/Facial.png", "service_detail/facial"),
@@ -46,45 +71,59 @@ fun IvonneOrchardHomeScreen(navController: NavController = rememberNavController
         ServiceItemCategory("Glam", "file:///android_asset/images/classic fade.jpg", "service_detail/glam")
     )
 
-    Scaffold(
-        bottomBar = { AppBottomNavigation(navController) }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    brush = Brush.radialGradient(
-                        colors = listOf(RichMaroon, DeepCharcoal),
-                        center = Offset(500f, 500f),
-                        radius = 1500f
-                    )
-                )
-                .padding(paddingValues)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(bottom = 20.dp)
-            ) {
-                FloatingAnimation {
-                    Text(
-                        text = "Ivonne Orchard",
-                        modifier = Modifier.padding(24.dp),
-                        style = MaterialTheme.typography.displayMedium.copy(
-                            fontWeight = FontWeight.ExtraBold,
-                            color = Color.White
+    val testimonials = listOf(
+        Testimonial("Sarah J.", "The gold standard of luxury in Nairobi."),
+        Testimonial("Michael K.", "Ivonne Orchard is a sanctuary for the soul."),
+        Testimonial("Elena R.", "Absolutely breathtaking results every single time."),
+        Testimonial("Kevin L.", "Professionalism meets unparalleled elegance.")
+    )
+
+    val ourCraftImages = listOf(
+        "file:///android_asset/images/gala style.jpg",
+        "file:///android_asset/images/Gel Sculpt.jpg",
+        "file:///android_asset/images/gold leaf oil.jpg",
+        "file:///android_asset/images/luku.jpg",
+        "file:///android_asset/images/Marcus.jpg",
+        "file:///android_asset/images/plumglazepolish.jpg",
+        "file:///android_asset/images/radiance serum.jpg",
+        "file:///android_asset/images/rose.jpg",
+        "file:///android_asset/images/signature bob.jpg",
+        "file:///android_asset/images/silk hair mask.jpg"
+    )
+
+    Scaffold(bottomBar = { AppBottomNavigation(navController) }) { paddingValues ->
+        Box(modifier = Modifier.fillMaxSize().background(Brush.radialGradient(colors = listOf(RichMaroon, DeepCharcoal), center = Offset(500f, 500f), radius = 1500f)).padding(paddingValues)) {
+            Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(bottom = 20.dp)) {
+                
+                // Personalized Breathtaking Header
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = fadeIn(animationSpec = tween(1000)) + slideInVertically(initialOffsetY = { -40 })
+                ) {
+                    Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 32.dp)) {
+                        Text(
+                            text = "CLIENT PORTAL ✨",
+                            fontSize = 10.sp,
+                            color = LuxuryGold.copy(alpha = 0.8f),
+                            letterSpacing = 2.sp,
+                            fontWeight = FontWeight.Bold
                         )
-                    )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Welcome, $userName 👋",
+                            fontSize = 32.sp,
+                            color = Color.White,
+                            fontWeight = FontWeight.ExtraBold,
+                            style = MaterialTheme.typography.displaySmall
+                        )
+                    }
+                }
+
+                FloatingAnimation {
+                    Text("Ivonne Orchard", modifier = Modifier.padding(horizontal = 24.dp), style = MaterialTheme.typography.displayMedium.copy(fontWeight = FontWeight.ExtraBold, color = Color.White))
                 }
                 
-                Text(
-                    text = "EST. 2009 • NAIROBI",
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 0.dp),
-                    color = LuxuryGold,
-                    letterSpacing = 4.sp,
-                    style = MaterialTheme.typography.labelLarge
-                )
+                Text("EST. 2009 • NAIROBI", modifier = Modifier.padding(horizontal = 24.dp), color = LuxuryGold, letterSpacing = 4.sp, style = MaterialTheme.typography.labelLarge)
 
                 Spacer(modifier = Modifier.height(24.dp))
                 
@@ -92,24 +131,40 @@ fun IvonneOrchardHomeScreen(navController: NavController = rememberNavController
 
                 SectionTitle("Bespoke Services")
                 Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                    serviceCategories.forEach { category ->
-                        ServiceImageButton(category) { navController.navigate(category.route) }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(32.dp))
-                SectionTitle("Our Specialists")
-                LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    items(listOf(Specialist("Elena Rose", "Master Stylist", "Elena.jpg"), Specialist("Marcus V.", "Skin Expert", "Marcus.jpg"), Specialist("Sophia L.", "Color Specialist", "Sofia.jpg"))) { person -> SpecialistItem(person) }
+                    serviceCategories.forEach { category -> ServiceImageButton(category) { navController.navigate(category.route) } }
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
                 SectionTitle("Our Craft")
-                LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    items(listOf("Silk wrap.jpg", "signature bob.jpg", "Gel Sculpt.jpg", "Beard sculpt.jpg")) { img ->
-                        AsyncImage(model = "file:///android_asset/images/$img", contentDescription = "Craft", modifier = Modifier.size(160.dp).clip(RoundedCornerShape(16.dp)), contentScale = ContentScale.Crop)
+                LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(ourCraftImages) { imageUrl ->
+                        AsyncImage(model = imageUrl, contentDescription = "Craft", modifier = Modifier.size(120.dp).clip(RoundedCornerShape(8.dp)), contentScale = ContentScale.Crop)
                     }
                 }
+
+                Spacer(modifier = Modifier.height(32.dp))
+                SectionTitle("Client Voices")
+                
+                val scrollState = rememberLazyListState()
+                LaunchedEffect(Unit) {
+                    while (true) {
+                        scrollState.animateScrollToItem(scrollState.firstVisibleItemIndex + 1)
+                        delay(2000)
+                    }
+                }
+
+                LazyRow(state = scrollState, contentPadding = PaddingValues(horizontal = 24.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    items(testimonials + testimonials) { t ->
+                        Card(modifier = Modifier.width(300.dp), colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.05f))) {
+                            Column(modifier = Modifier.padding(20.dp)) {
+                                Text("★★★★★", color = LuxuryGold, fontSize = 12.sp)
+                                Text("“${t.text}”", color = Color.White, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(vertical = 8.dp))
+                                Text("— ${t.name}", color = LuxuryGold, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                            }
+                        }
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(40.dp))
             }
         }
@@ -134,24 +189,8 @@ fun ServiceImageButton(category: ServiceItemCategory, onClick: () -> Unit) {
 @Composable
 fun FloatingAnimation(content: @Composable () -> Unit) {
     val infiniteTransition = rememberInfiniteTransition(label = "floating")
-    val dy by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 15f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ), label = "yOffset"
-    )
+    val dy by infiniteTransition.animateFloat(initialValue = 0f, targetValue = 15f, animationSpec = infiniteRepeatable(animation = tween(2000, easing = FastOutSlowInEasing), repeatMode = RepeatMode.Reverse), label = "yOffset")
     Box(modifier = Modifier.graphicsLayer { translationY = dy }) { content() }
-}
-
-@Composable
-fun SpecialistItem(specialist: Specialist) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        AsyncImage(model = "file:///android_asset/images/${specialist.imagePath}", contentDescription = specialist.name, modifier = Modifier.size(80.dp).clip(CircleShape), contentScale = ContentScale.Crop)
-        Text(specialist.name, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 8.dp), color = Color.White)
-        Text(specialist.role, fontSize = 11.sp, color = Color.Gray)
-    }
 }
 
 @Composable
@@ -164,5 +203,3 @@ fun AppBottomNavigation(navController: NavController) {
         NavigationBarItem(selected = false, onClick = { navController.navigate(ROUTE_CONTACT_US) }, icon = { Icon(Icons.Default.Call, null, tint = Color.Gray) }, label = { Text("Contact", color = Color.Gray) })
     }
 }
-
-data class Specialist(val name: String, val role: String, val imagePath: String)

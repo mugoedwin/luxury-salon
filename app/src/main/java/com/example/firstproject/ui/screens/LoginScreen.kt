@@ -32,7 +32,7 @@ import com.example.firstproject.viewmodel.AuthViewModel
 fun LoginScreen(
     role: String = "customer",
     onNavigateToRegister: () -> Unit = {},
-    onLoginSuccess: (String) -> Unit = {},
+    onLoginSuccess: (String, String) -> Unit = { _, _ -> },
     viewModel: AuthViewModel = viewModel()
 ) {
     var email by remember { mutableStateOf("") }
@@ -44,7 +44,7 @@ fun LoginScreen(
     LaunchedEffect(authState) {
         val currentStatus = authState
         if (currentStatus is AuthState.Success) {
-            onLoginSuccess(currentStatus.role)
+            onLoginSuccess(currentStatus.role, currentStatus.userName)
             viewModel.resetState()
         }
     }

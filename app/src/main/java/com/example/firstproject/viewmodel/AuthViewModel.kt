@@ -14,7 +14,7 @@ import kotlinx.coroutines.tasks.await
 sealed class AuthState {
     object Idle : AuthState()
     object Loading : AuthState()
-    data class Success(val role: String = "user") : AuthState()
+    data class Success(val role: String = "user", val userName: String = "") : AuthState()
     data class Error(val message: String) : AuthState()
 }
 
@@ -63,7 +63,7 @@ class AuthViewModel : ViewModel() {
                 mFirestore.collection("users").document(userId).set(userData).await()
                 
                 Log.d("AuthViewModel", "Registration flow complete")
-                _authState.value = AuthState.Success(role)
+                _authState.value = AuthState.Success(role, fullName)
 
             } catch (e: Exception) {
                 val errorMsg = e.message ?: "An unexpected error occurred"
@@ -85,25 +85,26 @@ class AuthViewModel : ViewModel() {
             try {
                 mAuth.signInWithEmailAndPassword(email, password).await()
                 val userId = mAuth.currentUser?.uid ?: throw Exception("User ID not found")
-                fetchUserRole(userId)
+                fetchUserData(userId)
             } catch (e: Exception) {
                 _authState.value = AuthState.Error(e.message ?: "Login failed")
             }
         }
     }
 
-    private fun fetchUserRole(userId: String) {
+    private fun fetchUserData(userId: String) {
         viewModelScope.launch {
             try {
                 val document = mFirestore.collection("users").document(userId).get().await()
                 if (document != null && document.exists()) {
                     val role = document.getString("role") ?: "user"
-                    _authState.value = AuthState.Success(role)
+                    val name = document.getString("name") ?: "Guest"
+                    _authState.value = AuthState.Success(role, name)
                 } else {
                     _authState.value = AuthState.Error("User data not found")
                 }
             } catch (e: Exception) {
-                _authState.value = AuthState.Error(e.message ?: "Failed to fetch user role")
+                _authState.value = AuthState.Error(e.message ?: "Failed to fetch user data")
             }
         }
     }
