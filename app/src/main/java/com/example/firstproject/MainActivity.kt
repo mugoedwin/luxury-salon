@@ -14,6 +14,10 @@ import com.example.firstproject.ui.theme.FirstProjectTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Initialize Cloudinary
+        CloudinaryHelper.init(applicationContext)
+
         setContent {
             FirstProjectTheme {
                 Surface(

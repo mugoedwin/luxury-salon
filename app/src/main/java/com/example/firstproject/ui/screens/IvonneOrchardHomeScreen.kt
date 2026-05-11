@@ -22,9 +22,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -42,8 +45,159 @@ val SoftGray = Color(0xFFF5F5F5)
 
 data class ServiceItemCategory(val name: String, val imagePath: String, val route: String)
 data class Testimonial(val name: String, val text: String)
+data class TrendItem(val name: String, val imagePath: String)
 
-@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomePageExtras() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 32.dp)
+    ) {
+        // --- STEP 1: SEASONAL LOOKBOOK (Visual Inspiration) ---
+        Text(
+            text = "Seasonal Inspiration",
+            modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
+            style = TextStyle(
+                fontFamily = FontFamily.Serif,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = LuxuryGold,
+                letterSpacing = 1.sp
+            )
+        )
+
+        val trends = listOf(
+            TrendItem("Royal Braids", "file:///android_asset/images/royal braids.jpg"),
+            TrendItem("Gold Foil Nails", "file:///android_asset/images/gold foil nails.jpg"),
+            TrendItem("Silk Press", "file:///android_asset/images/silk press.jpg"),
+            TrendItem("Maroon Glow", "file:///android_asset/images/maroon glow.jpg")
+        )
+
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 24.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(trends) { trend ->
+                Box(
+                    modifier = Modifier
+                        .size(160.dp, 220.dp)
+                        .clip(RoundedCornerShape(24.dp))
+                ) {
+                    AsyncImage(
+                        model = trend.imagePath,
+                        contentDescription = trend.name,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.verticalGradient(
+                                    colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.6f))
+                                )
+                            )
+                    )
+                    Text(
+                        text = trend.name,
+                        modifier = Modifier.align(Alignment.BottomStart).padding(16.dp),
+                        color = Color.White,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(40.dp))
+
+        // --- STEP 2: LOYALTY & M-PESA STATUS CARD ---
+        Column(
+            modifier = Modifier
+                .padding(horizontal = 24.dp)
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(20.dp))
+                .background(RichMaroon)
+                .border(1.dp, LuxuryGold.copy(alpha = 0.3f), RoundedCornerShape(20.dp))
+                .padding(20.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.Star,
+                    contentDescription = null,
+                    tint = LuxuryGold,
+                    modifier = Modifier.size(28.dp)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    "Gold Member Status",
+                    color = Color.White,
+                    style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            Text(
+                "You have 1,250 points. Redeem for a complimentary spa day.",
+                color = Color.White.copy(alpha = 0.8f),
+                fontSize = 14.sp
+            )
+            
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 16.dp),
+                color = Color.White.copy(alpha = 0.1f)
+            )
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFF4CAF50))
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    "Last Payment: Verified via M-Pesa",
+                    color = Color.White.copy(alpha = 0.6f),
+                    fontSize = 12.sp
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(48.dp))
+
+        // --- STEP 3: BRAND HERITAGE (About Us Snippet) ---
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 40.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Ivonne Orchard",
+                style = TextStyle(
+                    fontFamily = FontFamily.Serif,
+                    fontSize = 22.sp,
+                    color = LuxuryGold.copy(alpha = 0.7f),
+                    fontWeight = FontWeight.Light,
+                    letterSpacing = 4.sp
+                )
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Crafting timeless elegance in the heart of Nairobi. Beauty is a standard, not an option.",
+                textAlign = TextAlign.Center,
+                style = TextStyle(
+                    color = Color.Gray,
+                    fontSize = 13.sp,
+                    lineHeight = 20.sp,
+                    fontStyle = FontStyle.Italic
+                )
+            )
+        }
+    }
+}
+
 @Composable
 fun IvonneOrchardHomeScreen(
     navController: NavController = rememberNavController(),
@@ -95,7 +249,6 @@ fun IvonneOrchardHomeScreen(
         Box(modifier = Modifier.fillMaxSize().background(Brush.radialGradient(colors = listOf(RichMaroon, DeepCharcoal), center = Offset(500f, 500f), radius = 1500f)).padding(paddingValues)) {
             Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(bottom = 20.dp)) {
                 
-                // Personalized Breathtaking Header
                 AnimatedVisibility(
                     visible = isVisible,
                     enter = fadeIn(animationSpec = tween(1000)) + slideInVertically(initialOffsetY = { -40 })
@@ -165,7 +318,8 @@ fun IvonneOrchardHomeScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(32.dp))
+                HomePageExtras()
             }
         }
     }

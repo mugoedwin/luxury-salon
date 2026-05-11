@@ -13,6 +13,7 @@ interface MPesaAPI {
     @GET("oauth/v1/generate?grant_type=client_credentials")
     fun getAccessToken(@Header("Authorization") authHeader: String): Call<AccessTokenResponse>
 
+    // REMOVED leading slash to prevent double slash with baseUrl
     @POST("mpesa/stkpush/v1/processrequest")
     fun sendSTKPush(
         @Header("Authorization") authHeader: String,

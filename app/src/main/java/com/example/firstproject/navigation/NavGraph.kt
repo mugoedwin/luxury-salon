@@ -9,7 +9,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.firstproject.ui.screens.*
 import com.example.firstproject.ui.theme.AddProductScreen
-import com.example.firstproject.ui.theme.AdminDashboardContent
+import com.example.firstproject.ui.theme.WorldClassAdminDashboard
+
+// Helper for safer navigation
+fun NavHostController.navigateToLogin(role: String = "customer") {
+    this.navigate("$ROUTE_LOGIN/$role") {
+        popUpTo(ROUTE_WELCOME) { inclusive = true }
+    }
+}
 
 @Composable
 fun NavGraph(
@@ -23,13 +30,19 @@ fun NavGraph(
     ) {
         composable(ROUTE_WELCOME) {
             WelcomeScreen(
-                onNavigateToLogin = { role -> navController.navigate("$ROUTE_LOGIN/$role") },
+                onNavigateToLogin = { role -> navController.navigateToLogin(role) },
                 onNavigateToRegister = { navController.navigate(ROUTE_REGISTER) }
             )
         }
         composable(
             route = "$ROUTE_LOGIN/{role}",
-            arguments = listOf(navArgument("role") { type = NavType.StringType })
+            arguments = listOf(
+                navArgument("role") {
+                    type = NavType.StringType
+                    defaultValue = "customer"
+                    nullable = false
+                }
+            )
         ) { backStackEntry ->
             val role = backStackEntry.arguments?.getString("role") ?: "customer"
             LoginScreen(
@@ -50,7 +63,7 @@ fun NavGraph(
         }
         composable(ROUTE_REGISTER) {
             RegisterScreen(
-                onBackToLogin = { navController.navigate(ROUTE_LOGIN) },
+                onBackToLogin = { navController.navigateToLogin("customer") },
                 onRegisterSuccess = { role, userName ->
                     if (role == "admin") {
                         navController.navigate(ROUTE_ADMIN_DASHBOARD) {
@@ -98,7 +111,7 @@ fun NavGraph(
         composable("bookings") {
             BookingsPage(
                 onBackClick = { navController.popBackStack() },
-                onProceedToPayment = { navController.navigate("payment_screen") }
+                onProceedToPayment = { amount, phoneNumber -> navController.navigate("payment_screen") }
             )
         }
         composable("payment_screen") {
@@ -115,10 +128,7 @@ fun NavGraph(
             AboutUsScreen(onBack = { navController.popBackStack() })
         }
         composable(ROUTE_ADMIN_DASHBOARD) {
-            AdminDashboardContent(
-                onUnauthorized = { navController.navigate(ROUTE_LOGIN) },
-                onLogout = { navController.navigate(ROUTE_LOGIN) }
-            )
+            WorldClassAdminDashboard()
         }
         composable(ROUTE_ADD_PRODUCT) {
             AddProductScreen(

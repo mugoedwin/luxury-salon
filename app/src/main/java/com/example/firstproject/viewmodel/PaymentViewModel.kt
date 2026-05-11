@@ -4,12 +4,16 @@ import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import com.example.firstproject.DarajaUtils
 import com.example.firstproject.MPesaAPI
 import com.example.firstproject.MPesaConfig
 import com.example.firstproject.model.AccessTokenResponse
 import com.example.firstproject.model.STKPushRequest
 import com.example.firstproject.model.STKPushResponse
-import okhttp3.Credentials
+import com.example.firstproject.ui.screens.BookingManager
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
@@ -17,8 +21,6 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.text.SimpleDateFormat
-import java.util.*
 
 sealed class PaymentState {
     object Idle : PaymentState()
@@ -48,34 +50,40 @@ class PaymentViewModel : ViewModel() {
             .create(MPesaAPI::class.java)
     }
 
-    fun initiatePayment(phoneNumber: String, amount: Int) {
+    fun onPayClicked(inputPhone: String, amount: Int) {
+        val formattedPhone = DarajaUtils.formatPhoneNumber(inputPhone)
+        
+        if (formattedPhone.length != 12) {
+            _paymentState.value = PaymentState.Error("Please enter a valid M-Pesa number")
+            return
+        }
+        
+        val finalAmount = if (amount <= 0) 1 else amount
+        
+        initiatePayment(formattedPhone, finalAmount)
+    }
+
+    private fun initiatePayment(phoneNumber: String, amount: Int) {
         _paymentState.value = PaymentState.Loading
 
         val key = MPesaConfig.CONSUMER_KEY.trim()
         val secret = MPesaConfig.CONSUMER_SECRET.trim()
         
-        // Use OkHttp's standard Credentials utility for Basic Auth
-        val authHeader = Credentials.basic(key, secret)
+        val authHeader = DarajaUtils.getAuthHeader(key, secret)
 
         api.getAccessToken(authHeader).enqueue(object : Callback<AccessTokenResponse> {
             override fun onResponse(call: Call<AccessTokenResponse>, response: Response<AccessTokenResponse>) {
                 if (response.isSuccessful) {
                     val accessToken = response.body()?.accessToken
                     if (accessToken != null) {
+                        // After successful initiation, save booking to Firestore
+                        saveBookingsToFirestore()
                         performSTKPush(accessToken, phoneNumber, amount)
                     } else {
                         _paymentState.value = PaymentState.Error("Token was empty")
                     }
                 } else {
-                    val errorBody = response.errorBody()?.string()
-                    Log.e("MPesaAuth", "Full Error Body: $errorBody")
-                    
-                    val errorMessage = when (response.code()) {
-                        400 -> "Invalid Credentials. Please check Key/Secret in MPesaConfig."
-                        401 -> "Unauthorized. Check if your App is Approved on Daraja."
-                        else -> "Auth Error: ${response.code()}"
-                    }
-                    _paymentState.value = PaymentState.Error(errorMessage)
+                    _paymentState.value = PaymentState.Error("Auth Error: ${response.code()}")
                 }
             }
 
@@ -85,11 +93,34 @@ class PaymentViewModel : ViewModel() {
         })
     }
 
+    private fun saveBookingsToFirestore() {
+        val db = FirebaseFirestore.getInstance()
+        val user = FirebaseAuth.getInstance().currentUser
+        
+        BookingManager.cart.forEach { item ->
+            val bookingData = hashMapOf(
+                "serviceName" to item.title,
+                "imageUrl" to item.imageUrl,
+                "price" to item.price,
+                "duration" to item.duration,
+                "appointmentDate" to "Today",
+                "appointmentTime" to "Soon",
+                "customerName" to (user?.displayName ?: "Guest"),
+                "status" to "Pending",
+                "timestamp" to FieldValue.serverTimestamp()
+            )
+            
+            db.collection("bookings")
+                .add(bookingData)
+                .addOnSuccessListener { Log.d("Firestore", "Booking saved!") }
+                .addOnFailureListener { e -> Log.e("Firestore", "Error saving", e) }
+        }
+        BookingManager.clearCart()
+    }
+
     private fun performSTKPush(accessToken: String, phoneNumber: String, amount: Int) {
-        val timestamp = SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault()).format(Date())
-        // Standard M-Pesa Password generation
-        val passwordStr = MPesaConfig.BUSINESS_SHORT_CODE + MPesaConfig.PASSKEY + timestamp
-        val password = android.util.Base64.encodeToString(passwordStr.toByteArray(), android.util.Base64.NO_WRAP)
+        val timestamp = DarajaUtils.getTimestamp()
+        val password = DarajaUtils.getPassword(MPesaConfig.BUSINESS_SHORT_CODE, MPesaConfig.PASSKEY, timestamp)
 
         val request = STKPushRequest(
             businessShortCode = MPesaConfig.BUSINESS_SHORT_CODE,
@@ -101,8 +132,8 @@ class PaymentViewModel : ViewModel() {
             partyB = MPesaConfig.BUSINESS_SHORT_CODE,
             phoneNumber = phoneNumber,
             callBackURL = MPesaConfig.CALLBACK_URL,
-            accountReference = "Lux Salon",
-            transactionDesc = "Payment for services"
+            accountReference = "Ivonne Orchard",
+            transactionDesc = "Payment for Service"
         )
 
         api.sendSTKPush("Bearer $accessToken", request).enqueue(object : Callback<STKPushResponse> {
@@ -110,9 +141,7 @@ class PaymentViewModel : ViewModel() {
                 if (response.isSuccessful) {
                     _paymentState.value = PaymentState.Success(response.body()?.customerMessage ?: "Check your phone!")
                 } else {
-                    val errorBody = response.errorBody()?.string()
-                    Log.e("MPesaSTK", "Error: $errorBody")
-                    _paymentState.value = PaymentState.Error("STK Push Failed: ${response.code()}")
+                    _paymentState.value = PaymentState.Error("STK Push Failed")
                 }
             }
 

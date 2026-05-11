@@ -21,8 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.toObjects
 
 data class BespokeService(
     val category: String = "",
@@ -31,7 +31,7 @@ data class BespokeService(
     val description: String = "",
     val price: String = "",
     val benefit: String = "",
-    val imagePath: String = ""
+    val imageUrl: String = "" // Updated to match Firestore
 )
 
 @Composable
@@ -43,8 +43,9 @@ fun ServiceDetailPage(serviceId: String, onBookNow: () -> Unit, onBack: () -> Un
 
     LaunchedEffect(serviceId) {
         val db = FirebaseFirestore.getInstance()
-        db.collection("bespoke_services")
-            .whereEqualTo("category", serviceId)
+        // FIXED: Changed collection from "bespoke_services" to "services"
+        db.collection("services")
+            .whereEqualTo("category", serviceId.replaceFirstChar { it.uppercase() }) // Capitalize to match Firestore "Spa"
             .get()
             .addOnSuccessListener { snapshot ->
                 services = snapshot.toObjects(BespokeService::class.java)
@@ -57,8 +58,7 @@ fun ServiceDetailPage(serviceId: String, onBookNow: () -> Unit, onBack: () -> Un
 
     LazyColumn(modifier = Modifier.fillMaxSize().background(Color.White)) {
         item {
-            // Using a static header image based on the category for visual consistency
-            val headerImage = when (serviceId) {
+            val headerImage = when (serviceId.lowercase()) {
                 "hair" -> "file:///android_asset/images/Hair.jpg"
                 "facial" -> "file:///android_asset/images/Facial.png"
                 "spa" -> "file:///android_asset/images/Spa.jpg"
@@ -104,6 +104,7 @@ fun ServiceDetailPage(serviceId: String, onBookNow: () -> Unit, onBack: () -> Un
 @Composable
 fun DetailedServiceCard(service: BespokeService, onAddToCart: (BespokeService) -> Unit) {
     val champagneGold = Color(0xFFF1D38E)
+    val context = LocalContext.current
     
     Card(
         modifier = Modifier
@@ -113,8 +114,12 @@ fun DetailedServiceCard(service: BespokeService, onAddToCart: (BespokeService) -
         border = BorderStroke(1.dp, champagneGold.copy(alpha = 0.3f))
     ) {
         Box {
+            // Using Coil ImageRequest for better URL handling
             AsyncImage(
-                model = service.imagePath,
+                model = ImageRequest.Builder(context)
+                    .data(service.imageUrl.replace("http://", "https://"))
+                    .crossfade(true)
+                    .build(),
                 contentDescription = service.title,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxWidth().height(220.dp)
